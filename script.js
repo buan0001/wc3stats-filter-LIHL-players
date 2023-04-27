@@ -12,32 +12,32 @@ async function start(params) {
   //   console.log(dataFromAPI);
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("input", adaptSeasonsToLeagueSelection);
-  document.querySelector("#filterByCategory").addEventListener("input", changeFormBasedOnFilter);
+  // document.querySelector("#filterByCategory").addEventListener("input", changeFormBasedOnFilter);
   // filterByGamesPlayed(dataFromAPI);
 }
 
-function changeFormBasedOnFilter(event) {
-  console.log(event.originalTarget.value);
-  if (event.originalTarget.value === "Winrate") {
-    const html = `
-    <option value="Descending" selected>Descending</option>
-          <option value="Ascending">Ascending</option>
-        `;
-    document.querySelector("#activitySelect").innerHTML = html;
-    document.querySelector("#filterBy").innerHTML = "Sort by:";
-  }
-  if (event.originalTarget.value === "Activity") {
-    const html = `
-              <option value="10">10</option>
-          <option value="20" selected>20</option>
-          <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
-          <option value="100">100</option>`;
-    document.querySelector("#activitySelect").innerHTML = html;
-    document.querySelector("#filterBy").innerHTML = "Less than this amount of games per season";
-  }
-}
+// function changeFormBasedOnFilter(event) {
+//   console.log(event.originalTarget.value);
+//   if (event.originalTarget.value === "Winrate") {
+//     const html = `
+//     <option value="Descending" selected>Descending</option>
+//           <option value="Ascending">Ascending</option>
+//         `;
+//     document.querySelector("#activitySelect").innerHTML = html;
+//     document.querySelector("#filterBy").innerHTML = "Sort by:";
+//   }
+//   if (event.originalTarget.value === "Activity") {
+//     const html = `
+//               <option value="10">10</option>
+//           <option value="20" selected>20</option>
+//           <option value="30">30</option>
+//           <option value="40">40</option>
+//           <option value="50">50</option>
+//           <option value="100">100</option>`;
+//     document.querySelector("#activitySelect").innerHTML = html;
+//     document.querySelector("#filterBy").innerHTML = "Less than this amount of games per season";
+//   }
+// }
 
 function adaptSeasonsToLeagueSelection(event) {
   console.log(event.originalTarget.value);
@@ -68,14 +68,15 @@ async function submitFilter(event) {
   const elements = document.querySelector("#filterForm").elements;
   const league = elements.namedItem("leagueSelect").value;
   const season = elements.namedItem("seasonSelect").value;
+  const amount = elements.namedItem("selectAmountToShow").value;
   filterBy = elements.namedItem("activitySelect").value;
 
   console.log("league", league);
   console.log("season", season);
+  console.log(amount);
   console.log("activity");
 
-  // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`);
-  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=10`);
+  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=${amount}`);
   filterList(listOfPlayersThatSeason);
 }
 
@@ -133,7 +134,7 @@ function displayPlayersByWinRate(player) {
   console.log(player);
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
-  <li>Player: ${player.name} with a <span class="${colorClass}">${player.winrate}% win rate</span> </li>
+  <li>Player: ${player.name} with a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
