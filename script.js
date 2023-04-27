@@ -2,8 +2,10 @@
 
 window.addEventListener("load", start);
 
-let list = [];
 let filterBy;
+let displayAboveOrBelow;
+let displayOrder;
+let gameAmount;
 
 async function start(params) {
   console.log("vi er i start");
@@ -66,23 +68,26 @@ async function submitFilter(event) {
   console.log(event);
   event.preventDefault();
   const elements = document.querySelector("#filterForm").elements;
+
   const league = elements.namedItem("leagueSelect").value;
   const season = elements.namedItem("seasonSelect").value;
-  const amount = elements.namedItem("selectAmountToShow").value;
-  filterBy = elements.namedItem("activitySelect").value;
+  const playerAmount = elements.namedItem("selectPlayersToShow").value;
+
+  filterBy = elements.namedItem("filterByCategory").value;
+  gameAmount = elements.namedItem("amountOfGames").value;
+  displayOrder = elements.namedItem("descendingOrAscending").value;
+  displayAboveOrBelow = elements.namedItem("moreOrLess").value;
 
   console.log("league", league);
   console.log("season", season);
-  console.log(amount);
-  console.log("activity");
+  console.log("gameAmount", gameAmount);
+  console.log("playerAmount", playerAmount);
+  console.log("displayOrder", displayOrder);
+  console.log("displayMoreOrLess", displayAboveOrBelow);
+  console.log("filterBy", filterBy);
 
-  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=${amount}`);
-  filterList(listOfPlayersThatSeason);
-}
-
-function filterList(listOfPlayers) {
-  if (filterBy === "Descending" || filterBy === "Ascending") filterByWinRate(listOfPlayers);
-  else filterByGamesPlayed(listOfPlayers);
+  // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=${playerAmount}`);
+  // filterList(listOfPlayersThatSeason);
 }
 async function getJSONFromWC3Stats(dataToFetch) {
   const dataThings = await fetch(dataToFetch);
@@ -91,15 +96,16 @@ async function getJSONFromWC3Stats(dataToFetch) {
   const listOfPlayers = JSONtoJS.body;
   console.log(listOfPlayers);
   return listOfPlayers;
-  //   liste = JSONtoJS;
-  //   const result = prepareJSON(JSONtoJS);
-  //   return result;
+}
+
+function filterList(listOfPlayers) {
+  if (filterBy === "Winrate") filterByWinRate(listOfPlayers);
+  else filterByGamesPlayed(listOfPlayers);
 }
 
 function filterByWinRate(listOfPlayers) {
   let newList = listOfPlayers;
-  console.log(filterBy);
-  console.log("filterByWinRate in action");
+
   for (let i = 0; i < listOfPlayers.length; i++) {
     const winrate = (listOfPlayers[i].wins / listOfPlayers[i].played) * 100;
     listOfPlayers[i].winrate = winrate;
@@ -116,14 +122,6 @@ function filterByWinRate(listOfPlayers) {
   for (const player of newList) {
     displayPlayersByWinRate(player);
   }
-}
-
-function test(params) {
-  const array = [{ hej: 1 }, { hallo: 2 }, { hvadså: 2 }, { halløjsa: 3 }, { goddag: 4 }];
-  console.log(array);
-  const reversedArray = array.slice().reverse();
-
-  console.log(reversedArray);
 }
 
 function sortByWinRate(player1, player2) {
@@ -178,8 +176,3 @@ function changeColorClassByGamesPlayed(amountOfGames) {
     return "green";
   }
 }
-
-// test(0, 0, 1, 10);
-// function test(wins, losses, played, activity) {
-//   console.log(wins + losses !== 0);
-// }
