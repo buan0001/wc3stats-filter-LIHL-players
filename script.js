@@ -69,10 +69,11 @@ async function getJSONFromWC3Stats(dataToFetch) {
 
 function filterByGamesPlayed(listOfPlayers) {
   console.log(listOfPlayers);
-  const inactivePlayers = listOfPlayers.filter((player) => player.wins !== 0 && player.losses !== 0 && player.played < `${activity}`);
+  const inactivePlayers = listOfPlayers.filter((player) => player.wins + player.losses !== 0 && player.played < `${activity}`);
   console.log(inactivePlayers);
 
   inactivePlayers.sort(sortByGamesPlayed);
+  document.querySelector("#listOfPlayers").innerHTML = "";
   for (const player of inactivePlayers) {
     displayInactivePlayers(player);
   }
@@ -99,4 +100,9 @@ function changeColorClassByGamesPlayed(amountOfGames) {
   } else {
     return "green";
   }
+}
+
+test(0, 0, 1, 10);
+function test(wins, losses, played, activity) {
+  console.log(wins + losses !== 0);
 }
