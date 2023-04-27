@@ -1,5 +1,5 @@
 "use strict";
-window.addEventListener("load", start);
+// window.addEventListener("load", start);
 
 let liste = [];
 
