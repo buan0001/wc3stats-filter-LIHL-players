@@ -1,0 +1,80 @@
+/* Style the body element */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: rgba(128, 121, 114, 0.829);
+}
+
+/* Style the header element */
+header {
+  background-color: #a54949ad;
+  padding: 20px;
+}
+
+/* Style the h1 element */
+h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Style the form element */
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Style the label elements */
+label {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+/* Style the select elements */
+select {
+  padding: 5px;
+  font-size: 16px;
+}
+
+/* Style the input element */
+input[type="submit"] {
+  padding: 10px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Style the ol element */
+ol {
+  margin-top: 20px;
+  padding-left: 0;
+}
+
+/* Style the li elements */
+li {
+  list-style: none;
+  /* background-color: #172c3d; */
+  background-color: #5b9e9b;
+  color: #061d0b;
+  padding: 10px;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 16px;
+}
+
+.red {
+  /* color: rgb(243, 28, 28); */
+  color: #ad160b;
+}
+
+.yellow {
+  color: #ffeb3b;
+}
+
+.green {
+  color: #4caf50;
+}

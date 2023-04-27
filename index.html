@@ -9,9 +9,34 @@
     <link rel="shortcut icon" href=" " type="image/x-icon" />
   </head>
   <body>
-    <h1 id="overskrift">Sorting LIHL players by activity:</h1>
-
-    <div id="div"></div>
+    <header>
+      <h1 id="overskrift">Filtering FBG/LIHL players by activity:</h1>
+      <form id="filterForm">
+        <label for="leagueSelect">Choose a league:</label>
+        <select name="leagueSelect" id="leagueSelect" autocomplete="off">
+          <option value="FBG%20LTD">FBG LTD</option>
+          <option value="LIHL">LIHL</option>
+        </select>
+        <label for="seasonSelect">Choose a season:</label>
+        <select name="seasonSelect" id="seasonSelect">
+          <option id="seasonOption3" value="3">3</option>
+          <option id="seasonOption4" value="4">4</option>
+          <option id="seasonOption5" value="5">5</option>
+          <option id="seasonOption6" value="6">6</option>
+        </select>
+        <label for="activitySelect">Less than this amount of games per season:</label>
+        <select name="activitySelect" id="activitySelect">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+          <option value="40">40</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <input id="submit" type="submit" value="Filter" />
+      </form>
+    </header>
+    <ul id="listOfPlayers"></ul>
     <script src="script.js"></script>
   </body>
 </html>
