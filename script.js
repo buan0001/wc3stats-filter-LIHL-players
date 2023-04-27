@@ -96,22 +96,24 @@ async function getJSONFromWC3Stats(dataToFetch) {
 }
 
 function filterByWinRate(listOfPlayers) {
-  let array = listOfPlayers;
+  let newList = listOfPlayers;
   console.log(filterBy);
   console.log("filterByWinRate in action");
   for (let i = 0; i < listOfPlayers.length; i++) {
     const winrate = (listOfPlayers[i].wins / listOfPlayers[i].played) * 100;
     listOfPlayers[i].winrate = winrate;
   }
-  array.sort(sortByWinRate);
-  console.log(array);
-  const reveresedListOfPlayers = array.slice().reverse();
-  console.log(reveresedListOfPlayers);
+  newList.sort(sortByWinRate);
   if (filterBy === "Ascending") {
-    console.log("lIST OF PLAYERS:", array);
+    console.log("lIST OF PLAYERS:", newList);
     const reveresedListOfPlayers = listOfPlayers.slice().reverse();
-    array = reveresedListOfPlayers;
-    console.log("reversed list of players:", array);
+    newList = reveresedListOfPlayers;
+    console.log("reversed list of players:", newList);
+  }
+
+  document.querySelector("#listOfPlayers").innerHTML = "";
+  for (const player of newList) {
+    displayPlayersByWinRate(player);
   }
 }
 
@@ -127,7 +129,14 @@ function sortByWinRate(player1, player2) {
   return player2.winrate - player1.winrate;
 }
 
-function displayPlayersByWinRate(params) {}
+function displayPlayersByWinRate(player) {
+  console.log(player);
+  const colorClass = changeColorClassByWinRate(player.winrate);
+  const html = `
+  <li>Player: ${player.name} with a <span class="${colorClass}">${player.winrate}% win rate</span> </li>
+  `;
+  document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
+}
 
 function filterByGamesPlayed(listOfPlayers) {
   const inactivePlayers = listOfPlayers.filter((player) => player.wins + player.losses !== 0 && player.played < `${filterBy}`);
@@ -150,6 +159,13 @@ function displayInactivePlayers(player) {
   <li>Player: ${player.name} with <span class="${colorClass}">${player.played} games played</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
+}
+
+function changeColorClassByWinRate(winrate) {
+  if (winrate >= 55) return "superGreen";
+  else if (winrate >= 50) return "green";
+  else if (winrate >= 45) return "orange";
+  else return "red";
 }
 
 function changeColorClassByGamesPlayed(amountOfGames) {

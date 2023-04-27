@@ -62,13 +62,13 @@ ol {
 /* Style the li elements */
 li {
   list-style: none;
-  /* background-color: #172c3d; */
   background-color: #5b9e9b;
   color: #061d0b;
   padding: 10px;
-  border-bottom: 1px solid #f2f2f2;
+  border: 1px solid #291d1d59;
   line-height: 2em;
   font-size: 16px;
+  margin-bottom: 2px;
 }
 
 .red {
