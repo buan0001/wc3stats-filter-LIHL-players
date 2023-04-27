@@ -3,7 +3,7 @@
 window.addEventListener("load", start);
 
 let list = [];
-let activity;
+let filterBy;
 
 async function start(params) {
   console.log("vi er i start");
@@ -12,7 +12,31 @@ async function start(params) {
   //   console.log(dataFromAPI);
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("input", adaptSeasonsToLeagueSelection);
+  document.querySelector("#filterByCategory").addEventListener("input", changeFormBasedOnFilter);
   // filterByGamesPlayed(dataFromAPI);
+}
+
+function changeFormBasedOnFilter(event) {
+  console.log(event.originalTarget.value);
+  if (event.originalTarget.value === "Winrate") {
+    const html = `
+    <option value="Descending" selected>Descending</option>
+          <option value="Ascending">Ascending</option>
+        `;
+    document.querySelector("#activitySelect").innerHTML = html;
+    document.querySelector("#filterBy").innerHTML = "Sort by:";
+  }
+  if (event.originalTarget.value === "Activity") {
+    const html = `
+              <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="30">30</option>
+          <option value="40">40</option>
+          <option value="50">50</option>
+          <option value="100">100</option>`;
+    document.querySelector("#activitySelect").innerHTML = html;
+    document.querySelector("#filterBy").innerHTML = "Less than this amount of games per season";
+  }
 }
 
 function adaptSeasonsToLeagueSelection(event) {
@@ -44,17 +68,21 @@ async function submitFilter(event) {
   const elements = document.querySelector("#filterForm").elements;
   const league = elements.namedItem("leagueSelect").value;
   const season = elements.namedItem("seasonSelect").value;
-  activity = elements.namedItem("activitySelect").value;
+  filterBy = elements.namedItem("activitySelect").value;
 
   console.log("league", league);
   console.log("season", season);
   console.log("activity");
 
   // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`);
-  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=100`);
-  filterByGamesPlayed(listOfPlayersThatSeason);
+  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=10`);
+  filterList(listOfPlayersThatSeason);
 }
 
+function filterList(listOfPlayers) {
+  if (filterBy === "Descending" || filterBy === "Ascending") filterByWinRate(listOfPlayers);
+  else filterByGamesPlayed(listOfPlayers);
+}
 async function getJSONFromWC3Stats(dataToFetch) {
   const dataThings = await fetch(dataToFetch);
   const JSONtoJS = await dataThings.json();
@@ -67,10 +95,42 @@ async function getJSONFromWC3Stats(dataToFetch) {
   //   return result;
 }
 
+function filterByWinRate(listOfPlayers) {
+  let array = listOfPlayers;
+  console.log(filterBy);
+  console.log("filterByWinRate in action");
+  for (let i = 0; i < listOfPlayers.length; i++) {
+    const winrate = (listOfPlayers[i].wins / listOfPlayers[i].played) * 100;
+    listOfPlayers[i].winrate = winrate;
+  }
+  array.sort(sortByWinRate);
+  console.log(array);
+  const reveresedListOfPlayers = array.slice().reverse();
+  console.log(reveresedListOfPlayers);
+  if (filterBy === "Ascending") {
+    console.log("lIST OF PLAYERS:", array);
+    const reveresedListOfPlayers = listOfPlayers.slice().reverse();
+    array = reveresedListOfPlayers;
+    console.log("reversed list of players:", array);
+  }
+}
+
+function test(params) {
+  const array = [{ hej: 1 }, { hallo: 2 }, { hvadså: 2 }, { halløjsa: 3 }, { goddag: 4 }];
+  console.log(array);
+  const reversedArray = array.slice().reverse();
+
+  console.log(reversedArray);
+}
+
+function sortByWinRate(player1, player2) {
+  return player2.winrate - player1.winrate;
+}
+
+function displayPlayersByWinRate(params) {}
+
 function filterByGamesPlayed(listOfPlayers) {
-  console.log(listOfPlayers);
-  const inactivePlayers = listOfPlayers.filter((player) => player.wins + player.losses !== 0 && player.played < `${activity}`);
-  console.log(inactivePlayers);
+  const inactivePlayers = listOfPlayers.filter((player) => player.wins + player.losses !== 0 && player.played < `${filterBy}`);
 
   inactivePlayers.sort(sortByGamesPlayed);
   document.querySelector("#listOfPlayers").innerHTML = "";
@@ -93,16 +153,16 @@ function displayInactivePlayers(player) {
 }
 
 function changeColorClassByGamesPlayed(amountOfGames) {
-  if (activity / amountOfGames > 2) {
+  if (filterBy / amountOfGames > 2) {
     return "red";
-  } else if (activity / amountOfGames > 1.5) {
+  } else if (filterBy / amountOfGames > 1.5) {
     return "yellow";
   } else {
     return "green";
   }
 }
 
-test(0, 0, 1, 10);
-function test(wins, losses, played, activity) {
-  console.log(wins + losses !== 0);
-}
+// test(0, 0, 1, 10);
+// function test(wins, losses, played, activity) {
+//   console.log(wins + losses !== 0);
+// }
