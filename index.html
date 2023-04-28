@@ -27,12 +27,17 @@
           <option id="seasonOption6" value="14">14</option>
           <option id="seasonOption7" value="15">15</option>
         </select>
-        <label for="filterByCategory">Filter by:</label>
-        <select name="filterByCategory" id="filterByCategory" autocomplete="off">
+        <label for="sortByCategory">Sort by:</label>
+        <select name="sortByCategory" id="sortByCategory" autocomplete="off">
           <option value="Activity">Player Activity</option>
           <option value="Winrate">Winrate</option>
         </select>
-        <label id="filterBy" for="amountOfGames">Amount of games this season:</label>
+        <label for="descendingOrAscending">Descending or Ascending</label>
+        <select name="descendingOrAscending" id="descendingOrAscending">
+          <option value="Descending" selected>Descending</option>
+          <option value="Ascending">Ascending</option>
+        </select>
+        <label for="amountOfGames">Amount of games this season:</label>
         <select name="amountOfGames" id="amountOfGames">
           <option value="10">10</option>
           <option value="20" selected>20</option>
@@ -41,17 +46,12 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
-        <label for="descendingOrAscending">Descending or Ascending</label>
-        <select name="descendingOrAscending" id="descendingOrAscending">
-          <option value="Descending" selected>Descending</option>
-          <option value="Ascending">Ascending</option>
-        </select>
         <label id="labelMoreOrLess" for="moreOrLess">Show players above or below the set amount of games:</label>
         <select name="moreOrLess" id="moreOrLess" autocomplete="off">
           <option value="below" selected>Below</option>
           <option value="above">Above</option>
         </select>
-        <label id="labelToShow" for="selectPlayersToShow">Amount of players to load:</label>
+        <label id="labelToShow" for="selectPlayersToShow">Amount of players to show:</label>
         <select name="selectPlayersToShow" id="selectPlayersToShow" autocomplete="off">
           <option value="15">15</option>
           <option value="30" selected>30</option>
