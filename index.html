@@ -28,7 +28,7 @@
           <option id="seasonOption7" value="15">15</option>
         </select>
         <label for="sortByCategory">Sort by:</label>
-        <select name="sortByCategory" id="sortByCategory" autocomplete="off">
+        <select name="sortByCategory" id="sortByCategory">
           <option value="Activity">Player Activity</option>
           <option value="Winrate">Winrate</option>
         </select>
@@ -47,24 +47,24 @@
           <option value="100">100</option>
         </select>
         <label id="labelMoreOrLess" for="moreOrLess">Show players above or below the set amount of games:</label>
-        <select name="moreOrLess" id="moreOrLess" autocomplete="off">
+        <select name="moreOrLess" id="moreOrLess">
           <option value="below" selected>Below</option>
           <option value="above">Above</option>
         </select>
         <label id="labelToShow" for="selectPlayersToShow">Amount of players to show:</label>
-        <select name="selectPlayersToShow" id="selectPlayersToShow" autocomplete="off">
+        <select name="selectPlayersToShow" id="selectPlayersToShow">
           <option value="15">15</option>
-          <option value="30" selected>30</option>
+          <option value="30">30</option>
           <option value="50">50</option>
           <option value="100">100</option>
           <option value="200">200</option>
-          <option value="all">All</option>
+          <option value="500">500</option>
         </select>
         <input id="submit" type="submit" value="Filter" />
-        <label for="submit">(This will take a few seconds)</label>
+        <label for="submit">(First load & switching league/season will take a few sec)</label>
       </form>
     </header>
-    <ul id="listOfPlayers"></ul>
+    <ol id="listOfPlayers"></ol>
     <script src="script.js"></script>
   </body>
 </html>

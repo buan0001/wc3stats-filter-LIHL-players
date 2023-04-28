@@ -40,11 +40,6 @@ function adaptSeasonsToLeagueSelection(event) {
   }
 }
 
-// function test(params) {
-//   console.log("test@@@@@@@@@@@@@@");
-//   console.log("test@@@@@@@@@@@@@@");
-// }
-
 async function submitFilter(event) {
   document.querySelector("#submit").disabled = true;
   console.log(event);
@@ -76,7 +71,7 @@ async function submitFilter(event) {
     season = elements.namedItem("seasonSelect").value;
     console.log("league", league);
     console.log("season", season);
-    listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}`);
+    listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`);
     // listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=`);
     addWinRateToAllPlayers(listOfPlayersThatSeason);
   }
@@ -139,23 +134,21 @@ function filterByAmountOfGamesThisSeason(listOfPlayers) {
 }
 
 function sortByWinRate(listOfPlayers) {
-  //
+  // Definer en variabel, tilpas listOfPlayers' rækkefølge baseret på displayorder og gem det i sortedlist. Vis nu spillerne med variablen
 
-  console.log("presorted list", listOfPlayers);
-  listOfPlayers.sort(returnsListByWinrate);
-  console.log("postsorted list", listOfPlayers);
-  console.log("sortbycategory: ", sortByCategory);
+  let sortedList;
 
   if (displayOrder === "Ascending") {
-    const reveresedListOfPlayers = listOfPlayers.slice().reverse();
-    let ascendingListByWinrate = reveresedListOfPlayers;
-    console.log("reversed list of players:", ascendingListByWinrate);
-    for (const player of ascendingListByWinrate) {
-      displayPlayersByWinRate(player);
+    sortedList = listOfPlayers.sort(returnsListByWinrate).reverse();
+    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+      displayPlayersByWinRate(sortedList[i]);
     }
   } else {
-    for (const player of listOfPlayers) {
-      displayPlayersByWinRate(player);
+    sortedList = listOfPlayers.sort(returnsListByWinrate);
+    // sortedList.length = playerAmount;
+    console.log("sortedlist: ", sortedList);
+    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+      displayPlayersByWinRate(sortedList[i]);
     }
   }
 }
@@ -165,32 +158,47 @@ function returnsListByWinrate(player1, player2) {
 }
 
 function displayPlayersByWinRate(player) {
+  console.log("player: ", player);
+  console.log("player.winrate: ", player.winrate);
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
-  <li>Player: ${player.name} played <span class="orange">${player.played}</span> games with a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
+  <li>${player.name} played <span class="orange">${player.played}</span> games with a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
 
 function returnsListByGamesPlayed(player1, player2) {
-  return player1.played - player2.played;
+  return player2.played - player1.played;
 }
 
 function sortByGamesPlayed(listOfPlayers) {
-  document.querySelector("#listOfPlayers").innerHTML = "";
-  for (let index = 0; index < playerAmount; index++) {
-    displayInactivePlayers(listOfPlayers[index]);
+  let sortedList;
+  if (displayOrder === "Ascending") {
+    sortedList = listOfPlayers.sort(returnsListByGamesPlayed).reverse();
+    console.log("ascendinglist: ", sortedList);
+    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+      displayInactivePlayers(listOfPlayers[i]);
+    }
+  } else {
+    sortedList = listOfPlayers.sort(returnsListByGamesPlayed);
+    console.log("sortedList: ", sortedList);
+    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+      displayInactivePlayers(listOfPlayers[i]);
+    }
   }
-  // for (const player of inactivePlayers) {
-  //   displayInactivePlayers(player);
-  // }
 }
 
 function displayInactivePlayers(player) {
   console.log(player);
-  const colorClass = changeColorClassByGamesPlayed(player.played);
+  let colorClass;
+  if (displayAboveOrBelow === "above") {
+    colorClass = "orange";
+  } else {
+    colorClass = changeColorClassByGamesPlayed(player.played);
+  }
+
   const html = `
-  <li>Player: ${player.name} with <span class="${colorClass}">${player.played} games played</span> </li>
+  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span> and a ${player.winrate.toFixed(2)}% winrate</li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
@@ -203,9 +211,9 @@ function changeColorClassByWinRate(winrate) {
 }
 
 function changeColorClassByGamesPlayed(amountOfGames) {
-  if (sortByCategory / amountOfGames > 2) {
+  if (gameAmount / amountOfGames > 2) {
     return "red";
-  } else if (sortByCategory / amountOfGames > 1.5) {
+  } else if (gameAmount / amountOfGames > 1.5) {
     return "yellow";
   } else {
     return "green";

@@ -26,7 +26,7 @@ form {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  /* justify-content: space-between; */
+  justify-content: flex-start;
 }
 
 /* Style the label elements */
@@ -44,8 +44,9 @@ select {
 
 /* Style the input element */
 input[type="submit"] {
-  padding: 10px 15px;
+  padding: 12px 20px;
   margin-left: 4em;
+  margin-top: 0.5em;
   margin-right: -2em;
   background-color: #4caf50;
   color: white;
@@ -58,11 +59,13 @@ input[type="submit"] {
 ol {
   margin-top: 20px;
   padding-left: 0;
+  /* list-style-type: decimal; */
 }
 
 /* Style the li elements */
 li {
-  list-style: none;
+  /* list-style: none; */
+  list-style-position: inside;
   background-color: #5b9e9b;
   color: #061d0b;
   padding: 10px;
