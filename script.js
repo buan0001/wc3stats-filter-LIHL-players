@@ -14,7 +14,7 @@ let listOfPlayersThatSeason = [];
 async function start(params) {
   console.log("vi er i start");
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
-  document.querySelector("#leagueSelect").addEventListener("input", adaptSeasonsToLeagueSelection);
+  document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
 }
 
 function adaptSeasonsToLeagueSelection(event) {
@@ -120,7 +120,7 @@ function applyFilters(listOfPlayers) {
 
 function filterByAmountOfGamesThisSeason(listOfPlayers) {
   // Make a new array without the "invalid" players (0 wins, 0 losses. These only exists due to wrong uploads)
-  const actualPlayers = listOfPlayers.filter((player) => player.wins + player.losses !== 0);
+  const actualPlayers = listOfPlayers.filter((player) => player.wins + player.losses > 0);
   let anotherList;
 
   // Filters actualplayers based on the criteria, saves the filtered list in anotherList and returns it
