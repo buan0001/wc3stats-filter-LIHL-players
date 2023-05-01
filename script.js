@@ -10,29 +10,31 @@ let league;
 let season;
 let playerAmount;
 let listOfPlayersThatSeason = [];
-let sortedList = []
-// let sortedList = [
-//   { life: "aaaaaa", name: "1111" },
-//   { life: "bbbbb", name: "2222" },
-// ];
+let sortedList = [];
 
 async function start(params) {
   console.log("vi er i start");
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
-  document.querySelector("#search").addEventListener("keyup",searchChanged)
-  document.querySelector("#search").addEventListener("search", searchChanged)
+  document.querySelector("#search").addEventListener("keyup", searchChanged);
+  document.querySelector("#search").addEventListener("search", searchChanged);
 }
 
 function searchChanged(event) {
-  document.querySelector("#listOfPlayers").innerHTML = ""
+  document.querySelector("#listOfPlayers").innerHTML = "";
   console.log(event.target.value);
-  const stringToLookFor = event.target.value.toLowerCase()
-  const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor))
-  console.log(searchedList)
-  if (sortByCategory === "Activity"){for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
-    displayByActivity(searchedList[i]);
-  }}
+  const stringToLookFor = event.target.value.toLowerCase();
+  const searchedList = sortedList.filter((currentValue) => currentValue.name.toLowerCase().includes(stringToLookFor));
+  console.log(searchedList);
+  if (sortByCategory === "Activity") {
+    for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
+      displayByActivity(searchedList[i]);
+    }
+  } else {
+    for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
+      displayPlayersByWinRate(searchedList[i]);
+    }
+  }
 }
 
 function adaptSeasonsToLeagueSelection(event) {
@@ -153,7 +155,6 @@ function filterByAmountOfGamesThisSeason(listOfPlayers) {
 }
 
 function sortByRating(listOfPlayers) {
-
   if (displayOrder === "Ascending") {
     sortedList = listOfPlayers.sort((player1, player2) => player1.rating - player2.rating);
   } else {
@@ -191,7 +192,6 @@ function displayPlayersByWinRate(player) {
 }
 
 function sortByGamesPlayed(listOfPlayers) {
-
   if (displayOrder === "Ascending") {
     sortedList = listOfPlayers.sort((player1, player2) => player1.played - player2.played);
     console.log("ascendinglist: ", sortedList);
@@ -215,7 +215,8 @@ function displayByActivity(player) {
 
   const html = `
   <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${
-    player.rating}</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
+    player.rating
+  }</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
