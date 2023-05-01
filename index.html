@@ -31,6 +31,7 @@
         <select name="sortByCategory" id="sortByCategory">
           <option value="Activity">Player Activity</option>
           <option value="Winrate">Winrate</option>
+          <option value="Rating">Rating</option>
         </select>
         <label for="descendingOrAscending">Descending or Ascending</label>
         <select name="descendingOrAscending" id="descendingOrAscending">
@@ -64,6 +65,8 @@
         <label for="submit">(First load & switching league/season will take a few sec)</label>
       </form>
     </header>
+    <label for="search">Search for a specific player</label>
+    <input id="search" name="search" type="search" autocomplete="off">
     <ol id="listOfPlayers"></ol>
     <script src="script.js"></script>
   </body>

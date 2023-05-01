@@ -10,11 +10,29 @@ let league;
 let season;
 let playerAmount;
 let listOfPlayersThatSeason = [];
+let sortedList = []
+// let sortedList = [
+//   { life: "aaaaaa", name: "1111" },
+//   { life: "bbbbb", name: "2222" },
+// ];
 
 async function start(params) {
   console.log("vi er i start");
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
+  document.querySelector("#search").addEventListener("keyup",searchChanged)
+  document.querySelector("#search").addEventListener("search", searchChanged)
+}
+
+function searchChanged(event) {
+  document.querySelector("#listOfPlayers").innerHTML = ""
+  console.log(event.target.value);
+  const stringToLookFor = event.target.value.toLowerCase()
+  const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor))
+  console.log(searchedList)
+  if (sortByCategory === "Activity"){for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
+    displayByActivity(searchedList[i]);
+  }}
 }
 
 function adaptSeasonsToLeagueSelection(event) {
@@ -116,6 +134,7 @@ function applyFilters(listOfPlayers) {
 
   if (sortByCategory === "Winrate") sortByWinRate(newListOfPlayers);
   else if (sortByCategory === "Activity") sortByGamesPlayed(newListOfPlayers);
+  else if (sortByCategory === "Rating") sortByRating(newListOfPlayers);
 }
 
 function filterByAmountOfGamesThisSeason(listOfPlayers) {
@@ -133,28 +152,30 @@ function filterByAmountOfGamesThisSeason(listOfPlayers) {
   return anotherList;
 }
 
-function sortByWinRate(listOfPlayers) {
-  // Definer en variabel, tilpas listOfPlayers' rækkefølge baseret på displayorder og gem det i sortedlist. Vis nu spillerne med variablen
-
-  let sortedList;
+function sortByRating(listOfPlayers) {
 
   if (displayOrder === "Ascending") {
-    sortedList = listOfPlayers.sort(returnsListByWinrate).reverse();
-    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
-      displayPlayersByWinRate(sortedList[i]);
-    }
+    sortedList = listOfPlayers.sort((player1, player2) => player1.rating - player2.rating);
   } else {
-    sortedList = listOfPlayers.sort(returnsListByWinrate);
-    // sortedList.length = playerAmount;
-    console.log("sortedlist: ", sortedList);
-    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
-      displayPlayersByWinRate(sortedList[i]);
-    }
+    sortedList = listOfPlayers.sort((player1, player2) => player2.rating - player1.rating);
+  }
+  for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+    displayPlayersByWinRate(sortedList[i]);
   }
 }
 
-function returnsListByWinrate(player1, player2) {
-  return player2.winrate - player1.winrate;
+function sortByWinRate(listOfPlayers) {
+  // Tilpas listOfPlayers' rækkefølge baseret på displayorder og gem det i sortedlist. Vis nu spillerne med variablen
+
+  if (displayOrder === "Ascending") {
+    sortedList = listOfPlayers.sort((player1, player2) => player1.winrate - player2.winrate);
+  } else {
+    sortedList = listOfPlayers.sort((player1, player2) => player2.winrate - player1.winrate);
+    console.log("sortedList: ", sortedList);
+  }
+  for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+    displayPlayersByWinRate(sortedList[i]);
+  }
 }
 
 function displayPlayersByWinRate(player) {
@@ -162,33 +183,28 @@ function displayPlayersByWinRate(player) {
   console.log("player.winrate: ", player.winrate);
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
-  <li>${player.name} played <span class="orange">${player.played}</span> games with a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
+  <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${
+    player.rating
+  }</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
 
-function returnsListByGamesPlayed(player1, player2) {
-  return player2.played - player1.played;
-}
-
 function sortByGamesPlayed(listOfPlayers) {
-  let sortedList;
+
   if (displayOrder === "Ascending") {
-    sortedList = listOfPlayers.sort(returnsListByGamesPlayed).reverse();
+    sortedList = listOfPlayers.sort((player1, player2) => player1.played - player2.played);
     console.log("ascendinglist: ", sortedList);
-    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
-      displayInactivePlayers(listOfPlayers[i]);
-    }
   } else {
-    sortedList = listOfPlayers.sort(returnsListByGamesPlayed);
+    sortedList = listOfPlayers.sort((player1, player2) => player2.played - player1.played);
     console.log("sortedList: ", sortedList);
-    for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
-      displayInactivePlayers(listOfPlayers[i]);
-    }
+  }
+  for (let i = 0; i < playerAmount && i < sortedList.length; i++) {
+    displayByActivity(listOfPlayers[i]);
   }
 }
 
-function displayInactivePlayers(player) {
+function displayByActivity(player) {
   console.log(player);
   let colorClass;
   if (displayAboveOrBelow === "above") {
@@ -198,7 +214,8 @@ function displayInactivePlayers(player) {
   }
 
   const html = `
-  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span> and a ${player.winrate.toFixed(2)}% winrate</li>
+  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${
+    player.rating}</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
