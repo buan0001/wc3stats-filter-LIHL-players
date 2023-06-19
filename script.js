@@ -27,24 +27,25 @@ async function fetchReplaysFromLeague(event) {
   const form = event.target;
   console.log(form.leagueSelect.value);
   const leagueToCheck = form.leagueSelect.value;
+  const amountToCheck = form.amount.value;
   if (leagueToCheck === "all") {
     const leagues = ["LIHL", "FBG%20LTD", "JUB"];
     // const leagues = ["FBG%20LTD", "JUB"];
     const gamesPlayedPerDayAllLeagues = [];
     for (let i = 0; i < leagues.length; i++) {
       console.log(leagues[i]);
-      const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagues[i]}&limit=5000&sort=playedOn&order=desc`);
+      const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagues[i]}&limit=${amountToCheck}&sort=playedOn&order=desc`);
       const listOfReplays = await response.json();
       gamesPlayedPerDayAllLeagues.push(getDatesOfReplays(listOfReplays.body, leagues[i]));
     }
     const replayStatsConvertedToCSV = convertArrayToCSV(gamesPlayedPerDayAllLeagues);
-    // createDownloadBlob(replayStatsConvertedToCSV);
+    createDownloadBlob(replayStatsConvertedToCSV);
   } else {
-    const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagueToCheck}&limit=10000&sort=playedOn&order=desc`);
+    const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagueToCheck}&limit=${amountToCheck}&sort=playedOn&order=desc`);
     const listOfReplays = await response.json();
     const replayArray = getDatesOfReplays(listOfReplays.body, leagueToCheck);
     const replayStatsConvertedToCSV = convertArrayToCSV(replayArray);
-    // createDownloadBlob(replayStatsConvertedToCSV);
+    createDownloadBlob(replayStatsConvertedToCSV);
   }
   document.querySelector("#loadingElement").classList.remove("loading");
 }
@@ -105,6 +106,7 @@ function generateCSVString(array) {
 
 function getDatesOfReplays(listOfReplays, nameOfLeague) {
   let gamesPlayed = [];
+  let someRandomNumber = 0;
   if (nameOfLeague === "FBG%20LTD") {
     nameOfLeague = `FBG LTD`;
   }
@@ -112,6 +114,7 @@ function getDatesOfReplays(listOfReplays, nameOfLeague) {
     const replayDate = replay.playedOn;
     const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
     const existingDate = gamesPlayed.find(obj => obj.Date === dateToArray);
+    someRandomNumber++;
 
     if (existingDate) {
       existingDate["Amount of Games"] += 1;
@@ -124,6 +127,7 @@ function getDatesOfReplays(listOfReplays, nameOfLeague) {
       gamesPlayed.push(newObject);
     }
   }
+  console.log(someRandomNumber);
   console.log(gamesPlayed);
   return gamesPlayed;
 }
@@ -180,18 +184,20 @@ async function getGamesPlayedPerDay(allLeagues) {
 }
 
 function searchChanged(event) {
-  document.querySelector("#listOfPlayers").innerHTML = "";
-  console.log(event.target.value);
-  const stringToLookFor = event.target.value.toLowerCase();
-  const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor));
-  console.log(searchedList);
-  if (sortByCategory === "Activity") {
-    for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
-      displayByActivity(searchedList[i]);
-    }
-  } else {
-    for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
-      displayPlayersByWinRate(searchedList[i]);
+  if (document.querySelector("#listOfPlayers").innerHTML !== "") {
+    document.querySelector("#listOfPlayers").innerHTML = "";
+    console.log(event.target.value);
+    const stringToLookFor = event.target.value.toLowerCase();
+    const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor));
+    console.log(searchedList);
+    if (sortByCategory === "Activity") {
+      for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
+        displayByActivity(searchedList[i]);
+      }
+    } else {
+      for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
+        displayPlayersByWinRate(searchedList[i]);
+      }
     }
   }
 }

@@ -66,6 +66,10 @@
         <label for="submit">(First load & switching league/season will take a few sec)</label>
       </form>
       <form id="gamesPerDay">
+        <label for="amount">Amount of games to look up
+          <input name="amount" type="number" min="1" max="10000">
+        </label>
+        <br>
         <label for="leagueSelect">
         <select name="leagueSelect" id="leagueSelect">
           <option value="all">All</option>
@@ -73,8 +77,8 @@
           <option value="FBG LTD">FBG</option>
           <option value="JUB">JUB</option>
         </select>
-      League to get amount of games played per day data from</label>
-      <input type="submit" value="Fetch data and get file">
+        League to get amount of games played per day data from</label>
+        <input type="submit" value="Fetch data and get file">
       </form>
     </header>
     <div id="loadingElement" class=""></div>
