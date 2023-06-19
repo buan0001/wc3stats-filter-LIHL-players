@@ -11,6 +11,7 @@ let season;
 let playerAmount;
 let listOfPlayersThatSeason = [];
 let sortedList = [];
+const gamesPlayedPerDayAllLeagues = [];
 
 async function start(params) {
   // const response = await fetch(`https://api.wc3stats.com/stats/425062`);
@@ -32,35 +33,115 @@ async function fetchReplaysFromLeague(event) {
   const form = event.target;
   console.log(form.leagueSelect.value);
   const leagueToCheck = form.leagueSelect.value;
-  const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagueToCheck}&limit=50&sort=playedOn&order=desc`);
-  const listOfReplays = await response.json();
-  console.log(listOfReplays);
-  console.log(listOfReplays.body[0].playedOn);
-  // console.log(new Date(listOfReplays.body[0].playedOn));
-  const dateOfReplay = new Date(listOfReplays.body[0].playedOn * 1000);
-  console.log(dateOfReplay.toString());
-  console.log(dateOfReplay.getTime());
-  console.log(dateOfReplay.getDate());
-  getDatesOfReplays(listOfReplays.body);
+  if (leagueToCheck === "all") {
+    const leagues = ["LIHL", "FBG%20LTD", "JUB"];
+    for (let i = 0; i < leagues.length; i++) {
+      console.log(leagues[i]);
+      const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagues[i]}&limit=10&sort=playedOn&order=desc`);
+      const listOfReplays = await response.json();
+      getDatesOfReplays(listOfReplays.body, leagues[i]);
+    }
+    convertArrayToCSV(gamesPlayedPerDayAllLeagues);
+  } else {
+    const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagueToCheck}&limit=50&sort=playedOn&order=desc`);
+    const listOfReplays = await response.json();
+    const replayArray = getDatesOfReplays(listOfReplays.body, leagueToCheck);
+    const test = convertArrayToCSV(replayArray);
+    console.log(test);
+  }
 }
 
-function getDatesOfReplays(listOfReplays) {
+// function objectToCSVRow(obj) {
+//   console.log("object to csv row");
+//   const keys = Object.keys(obj);
+//   const values = Object.values(obj);
+//   const row = values.map(value => `"${value}"`).join(",");
+//   return `${keys[0]},${row}`;
+// }
+
+function convertArrayToCSV(array) {
+  // Opret en tom streng til at gemme CSV-dataene
+  let csvString = "";
+  if (array[0].Date == undefined) {
+    console.log("undefined date in array!", array);
+    const headers = Object.keys(array[0]);
+    csvString += headers.join(",") + "\n";
+
+    array.forEach(leagueArray =>
+      leagueArray.forEach(item => {
+        const values = Object.values(item);
+
+        // Håndter specialtegn i værdierne ved at omslutte dem med citationstegn
+        const escapedValues = values.map(value => {
+          if (typeof value === "string" && value.includes(",")) {
+            return `"${value}"`;
+          }
+          return value;
+        });
+
+        csvString += escapedValues.join(",") + "\n";
+      })
+    );
+    console.log("csv string", csvString);
+    return csvString;
+  } else if (array[0].Date !== undefined) {
+    console.log("defined date!", array);
+
+    // Generer CSV-header baseret på arrayets første element
+    const headers = Object.keys(array[0]);
+    csvString += headers.join(",") + "\n";
+
+    // Generer CSV-data for hver række i arrayet
+    array.forEach(item => {
+      const values = Object.values(item);
+
+      // Håndter specialtegn i værdierne ved at omslutte dem med citationstegn
+      const escapedValues = values.map(value => {
+        if (typeof value === "string" && value.includes(",")) {
+          return `"${value}"`;
+        }
+        return value;
+      });
+
+      csvString += escapedValues.join(",") + "\n";
+    });
+    console.log("csv string", csvString);
+    return csvString;
+  }
+}
+
+function getDatesOfReplays(listOfReplays, nameOfLeague) {
   let gamesPlayed = [];
-  let dateCheck;
-  let gamesPlayedThatDay = 0;
-  // for (let i = 0; i < listOfReplays.length; i++) {
-  //   const replayDate = listOfReplays[i].playedOn;
-  //   const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
-  //   console.log("replay date:", dateToArray);
-  //   gamesPlayed[dateToArray] = (gamesPlayed[dateToArray] || 0) + 1;
-  // }
+  // gamesPlayed.push(nameOfLeague);
   for (const replay of listOfReplays) {
     const replayDate = replay.playedOn;
     const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
-    console.log("replay date:", dateToArray);
-    gamesPlayed[dateToArray] = (gamesPlayed[dateToArray] || 0) + 1;
+    // gamesPlayed[dateToArray] = (gamesPlayed[dateToArray] || 0) + 1;
+
+    // Find eksisterende objekt i gamesPlayed-arrayet med samme dato
+    const existingDate = gamesPlayed.find(obj => obj.Date === dateToArray);
+
+    if (existingDate) {
+      // Opdater antallet af spil for eksisterende Date
+      existingDate["Amount of Games"] += 1;
+    } else {
+      // Opret et nyt objekt med Date og Amount of Games
+      const newObject = {
+        Date: dateToArray,
+        "Amount of Games": 1,
+        League: nameOfLeague,
+      };
+      gamesPlayed.push(newObject);
+    }
   }
   console.log(gamesPlayed);
+  if (nameOfLeague === "FBG%20LTD") {
+    nameOfLeague = `FBG LTD`;
+  }
+
+  gamesPlayedPerDayAllLeagues.push(gamesPlayed);
+  console.log(gamesPlayedPerDayAllLeagues);
+  return gamesPlayed;
 }
 
 async function fetchLeagueSeasonsAndIds(event) {
