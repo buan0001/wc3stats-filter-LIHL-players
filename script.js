@@ -229,23 +229,14 @@ function adaptSeasonsToLeagueSelection(event) {
 
 async function submitFilter(event) {
   document.querySelector("#submit").disabled = true;
-  console.log(event);
   event.preventDefault();
   const elements = document.querySelector("#filterForm").elements;
 
-  playerAmount = elements.namedItem("selectPlayersToShow").value;
-
-  sortByCategory = elements.namedItem("sortByCategory").value;
-  gameAmount = elements.namedItem("amountOfGames").value;
-  displayOrder = elements.namedItem("descendingOrAscending").value;
-  displayAboveOrBelow = elements.namedItem("moreOrLess").value;
-
-  console.log("playerAmount", playerAmount);
-  console.log("gameAmount", gameAmount);
-  console.log("displayOrder", displayOrder);
-  console.log("displayAboveOrBelow", displayAboveOrBelow);
-  console.log("sortByCategory", sortByCategory);
-
+  playerAmount = elements.selectPlayersToShow.value;
+  sortByCategory = elements.sortByCategory.value;
+  gameAmount = elements.amountOfGames.value;
+  displayOrder = elements.descendingOrAscending.value;
+  displayAboveOrBelow = elements.moreOrLess.value;
   // If league and elements are unchanged, no need to fetch a new list
 
   if (league === elements.namedItem("leagueSelect").value && season === elements.namedItem("seasonSelect").value) {
@@ -280,14 +271,12 @@ function addWinRateToAllPlayers(listOfPlayers) {
     listOfPlayers[i].winrate = winrate;
   }
 
-  console.log("listOfPLayers", listOfPlayers);
   applyFilters(listOfPlayers);
 }
 
 function applyFilters(listOfPlayers) {
   document.querySelector("#submit").disabled = false;
   document.querySelector("#listOfPlayers").innerHTML = "";
-  console.log(listOfPlayers);
 
   // NU VIL VI GERNE HAVE DEN TIL AT VISE EFTER: PLAYERAMOUNT(1) (hvor mange der skal vises på siden), GAMEAMOUNT(2) (hvor mange de hver især har spillet) -
   // DISPLAY ABOVE OR BELOW(3)(om den skal vise spillere med flere eller færre games end GAMEAMOUNT), DISPLAYORDER(4) (om det skal være aftagende eller tiltagende) -
@@ -347,8 +336,6 @@ function sortByWinRate(listOfPlayers) {
 }
 
 function displayPlayersByWinRate(player) {
-  console.log("player: ", player);
-  console.log("player.winrate: ", player.winrate);
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
   <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${player.rating}</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
@@ -370,7 +357,6 @@ function sortByGamesPlayed(listOfPlayers) {
 }
 
 function displayByActivity(player) {
-  console.log(player);
   let colorClass;
   if (displayAboveOrBelow === "above") {
     colorClass = "orange";
