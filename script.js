@@ -13,18 +13,112 @@ let listOfPlayersThatSeason = [];
 let sortedList = [];
 
 async function start(params) {
-  console.log("vi er i start");
+  // const response = await fetch(`https://api.wc3stats.com/stats/425062`);
+
+  // const response = await fetch(`https://api.wc3stats.com/replays/Legion%20TD&sort=playedOn&order=desc&limit=50`);
+  // const response = await fetch("https://api.wc3stats.com/stats/52849");
+  // const test = await response.json();
+  // console.log(test);
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
   document.querySelector("#search").addEventListener("keyup", searchChanged);
   document.querySelector("#search").addEventListener("search", searchChanged);
+  document.querySelector("#gamesPerDay").addEventListener("submit", fetchReplaysFromLeague);
+  // document.querySelector("#gamesPerDay").addEventListener("submit", fetchLeagueSeasonsAndIds);
+}
+
+async function fetchReplaysFromLeague(event) {
+  event.preventDefault();
+  const form = event.target;
+  console.log(form.leagueSelect.value);
+  const leagueToCheck = form.leagueSelect.value;
+  const response = await fetch(`https://api.wc3stats.com/replays&search=Legion%20TD&ladder=${leagueToCheck}&limit=50&sort=playedOn&order=desc`);
+  const listOfReplays = await response.json();
+  console.log(listOfReplays);
+  console.log(listOfReplays.body[0].playedOn);
+  // console.log(new Date(listOfReplays.body[0].playedOn));
+  const dateOfReplay = new Date(listOfReplays.body[0].playedOn * 1000);
+  console.log(dateOfReplay.toString());
+  console.log(dateOfReplay.getTime());
+  console.log(dateOfReplay.getDate());
+  getDatesOfReplays(listOfReplays.body);
+}
+
+function getDatesOfReplays(listOfReplays) {
+  let gamesPlayed = [];
+  let dateCheck;
+  let gamesPlayedThatDay = 0;
+  // for (let i = 0; i < listOfReplays.length; i++) {
+  //   const replayDate = listOfReplays[i].playedOn;
+  //   const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
+  //   console.log("replay date:", dateToArray);
+  //   gamesPlayed[dateToArray] = (gamesPlayed[dateToArray] || 0) + 1;
+  // }
+  for (const replay of listOfReplays) {
+    const replayDate = replay.playedOn;
+    const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
+    console.log("replay date:", dateToArray);
+    gamesPlayed[dateToArray] = (gamesPlayed[dateToArray] || 0) + 1;
+  }
+  console.log(gamesPlayed);
+}
+
+async function fetchLeagueSeasonsAndIds(event) {
+  event.preventDefault();
+  const form = event.target;
+
+  const response = await fetch(`https://api.wc3stats.com/maps/Legion%20TD`);
+  const converted = await response.json();
+  const arrayOfLTDVariants = converted.body.variants;
+  let correctVariant;
+  for (const variant of arrayOfLTDVariants) {
+    if (variant.name === "Legion TD") correctVariant = variant;
+  }
+  console.log("correct variant:", correctVariant);
+  const seasons = {
+    jubSeasons: [],
+    lihlSeasons: [],
+    fbgltdSeasons: [],
+    fbgltdsoloSeasons: [],
+  };
+
+  for (const object of correctVariant.stats) {
+    const ladder = object.key.ladder;
+    if (ladder === "LIHL" || ladder === "FBG LTD" || ladder === "JUB" || ladder === "FBG LTD Solo") {
+      const reg = new RegExp(/\s+/g);
+      const dynamicSeason = `${ladder.replace(reg, "").toLowerCase()}Seasons`;
+      const newSeason = { season: object.key.season, id: object.id };
+      seasons[dynamicSeason].push(newSeason);
+      // seasons[dynamicSeason].push(`${season}. id: ${object.id}`);
+    }
+  }
+  console.log(seasons);
+  console.log("lihl seasons:", seasons.lihlSeasons);
+  console.log("jub seasons:", seasons.jubSeasons);
+  console.log("fbg seasons:", seasons.fbgltdSeasons);
+
+  getGamesPlayedPerDay(seasons);
+}
+
+async function getGamesPlayedPerDay(allLeagues) {
+  // const response = await fetch ("https://api.wc3stats.com/stats/52849")
+  // console.log("entries:", Object.entries(arrayOfLeagueSeasons));
+  // console.log("keys:", Object.keys(arrayOfLeagueSeasons));
+  // console.log("values:", Object.values(arrayOfLeagueSeasons));
+  for (const league in allLeagues) {
+    // console.log(arrayOfLeague);
+    // console.log(arrayOfLeagueSeasons[arrayOfLeague]);
+    for (const season of league) {
+      console.log(season);
+    }
+  }
 }
 
 function searchChanged(event) {
   document.querySelector("#listOfPlayers").innerHTML = "";
   console.log(event.target.value);
   const stringToLookFor = event.target.value.toLowerCase();
-  const searchedList = sortedList.filter((currentValue) => currentValue.name.toLowerCase().includes(stringToLookFor));
+  const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor));
   console.log(searchedList);
   if (sortByCategory === "Activity") {
     for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
@@ -141,14 +235,14 @@ function applyFilters(listOfPlayers) {
 
 function filterByAmountOfGamesThisSeason(listOfPlayers) {
   // Make a new array without the "invalid" players (0 wins, 0 losses. These only exists due to wrong uploads)
-  const actualPlayers = listOfPlayers.filter((player) => player.wins + player.losses > 0);
+  const actualPlayers = listOfPlayers.filter(player => player.wins + player.losses > 0);
   let anotherList;
 
   // Filters actualplayers based on the criteria, saves the filtered list in anotherList and returns it
   if (displayAboveOrBelow === "below") {
-    anotherList = actualPlayers.filter((player) => player.played < gameAmount);
+    anotherList = actualPlayers.filter(player => player.played < gameAmount);
   } else if (displayAboveOrBelow === "above") {
-    anotherList = actualPlayers.filter((player) => player.played > gameAmount);
+    anotherList = actualPlayers.filter(player => player.played > gameAmount);
   }
 
   return anotherList;
@@ -184,9 +278,7 @@ function displayPlayersByWinRate(player) {
   console.log("player.winrate: ", player.winrate);
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
-  <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${
-    player.rating
-  }</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
+  <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${player.rating}</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
@@ -214,9 +306,7 @@ function displayByActivity(player) {
   }
 
   const html = `
-  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${
-    player.rating
-  }</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
+  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${player.rating}</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }

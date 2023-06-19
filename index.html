@@ -64,6 +64,16 @@
         <input id="submit" type="submit" value="Filter" />
         <label for="submit">(First load & switching league/season will take a few sec)</label>
       </form>
+      <form id="gamesPerDay">
+        <label for="leagueSelect">
+        <select name="leagueSelect" id="leagueSelect">
+          <option value="LIHL">LIHL</option>
+          <option value="FBG LTD">FBG</option>
+          <option value="JUB">JUB</option>
+        </select>
+      League to get amount of games played per day data from</label>
+      <input type="submit" value="Fetch data and get file">
+      </form>
     </header>
     <label for="search">Search for a specific player</label>
     <input id="search" name="search" type="search" autocomplete="off">
