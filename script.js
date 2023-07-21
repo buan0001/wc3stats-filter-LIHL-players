@@ -13,12 +13,39 @@ let listOfPlayersThatSeason = [];
 let sortedList = [];
 
 async function start(params) {
+  lumberTest();
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
   document.querySelector("#search").addEventListener("keyup", searchChanged);
   document.querySelector("#search").addEventListener("search", searchChanged);
   document.querySelector("#gamesPerDay").addEventListener("submit", fetchReplaysFromLeague);
   // document.querySelector("#gamesPerDay").addEventListener("submit", fetchLeagueSeasonsAndIds);
+}
+
+async function lumberTest(params) {
+  const response = await fetch(`https://api.wc3stats.com/profiles/Emi1%2321943`);
+  // const response = await fetch(`https://api.wc3stats.com/profiles/Clickz/424520`);
+  const test = await fetch(`https://api.wc3stats.com/stats/425079`);
+  console.log(test.json());
+  console.log(response.json());
+  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=LIHL&season=Season%2016&limit=2`);
+
+  for (const player of listOfPlayersThatSeason) {
+    const seperateNameAndTag = player.name.split("#");
+    const listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}%23${seperateNameAndTag[1]}`);
+    const toJSON = await listOfSeasonsThatPersonParticipatedIn.json();
+    const foundCorrectEntry = toJSON.body.find((entry) => entry.key.season === "Season 16" && entry.key.ladder === "LIHL");
+    console.log("found season id", foundCorrectEntry);
+    const fetchEntryStats = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}/${foundCorrectEntry.id}`);
+    const yep = await fetchEntryStats.json();
+    console.log("YEP", yep);
+    const finalStatsID = yep.body.stats.id;
+    const yep2 = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}/${finalStatsID}`);
+    const yawn = await yep2.json();
+    console.log(yawn);
+  }
+  // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`)
+  console.log(listOfPlayersThatSeason);
 }
 
 async function fetchReplaysFromLeague(event) {
@@ -72,7 +99,7 @@ function convertArrayToCSV(arrayOfReplayStats) {
     const headers = Object.keys(arrayOfReplayStats[0][0]);
     csvString += headers.join(",") + "\n";
 
-    arrayOfReplayStats.forEach(leagueStats => (csvString += generateCSVString(leagueStats)));
+    arrayOfReplayStats.forEach((leagueStats) => (csvString += generateCSVString(leagueStats)));
     console.log("csv test:", csvString);
     return csvString;
   } else if (arrayOfReplayStats[0].Date !== undefined) {
@@ -87,11 +114,11 @@ function generateCSVString(array) {
   let csvString = "";
 
   // Generer CSV-data for hver række i arrayet
-  array.forEach(item => {
+  array.forEach((item) => {
     const values = Object.values(item);
 
     // Håndter specialtegn i værdierne ved at omslutte dem med citationstegn
-    const escapedValues = values.map(value => {
+    const escapedValues = values.map((value) => {
       if (typeof value === "string" && value.includes(",")) {
         return `"${value}"`;
       }
@@ -113,7 +140,7 @@ function getDatesOfReplays(listOfReplays, nameOfLeague) {
   for (const replay of listOfReplays) {
     const replayDate = replay.playedOn;
     const dateToArray = new Date(replayDate * 1000).toISOString().slice(0, 10);
-    const existingDate = gamesPlayed.find(obj => obj.Date === dateToArray);
+    const existingDate = gamesPlayed.find((obj) => obj.Date === dateToArray);
     someRandomNumber++;
 
     if (existingDate) {
@@ -188,7 +215,7 @@ function searchChanged(event) {
     document.querySelector("#listOfPlayers").innerHTML = "";
     console.log(event.target.value);
     const stringToLookFor = event.target.value.toLowerCase();
-    const searchedList = sortedList.filter(currentValue => currentValue.name.toLowerCase().includes(stringToLookFor));
+    const searchedList = sortedList.filter((currentValue) => currentValue.name.toLowerCase().includes(stringToLookFor));
     console.log(searchedList);
     if (sortByCategory === "Activity") {
       for (let i = 0; i < playerAmount && i < searchedList.length; i++) {
@@ -258,6 +285,7 @@ async function submitFilter(event) {
 async function getJSONFromWC3Stats(dataToFetch) {
   const dataThings = await fetch(dataToFetch);
   const JSONtoJS = await dataThings.json();
+  console.log(JSONtoJS);
   const listOfPlayers = JSONtoJS.body;
   console.log(listOfPlayers);
   return listOfPlayers;
@@ -297,14 +325,14 @@ function applyFilters(listOfPlayers) {
 
 function filterByAmountOfGamesThisSeason(listOfPlayers) {
   // Make a new array without the "invalid" players (0 wins, 0 losses. These only exists due to wrong uploads)
-  const actualPlayers = listOfPlayers.filter(player => player.wins + player.losses > 0);
+  const actualPlayers = listOfPlayers.filter((player) => player.wins + player.losses > 0);
   let anotherList;
 
   // Filters actualplayers based on the criteria, saves the filtered list in anotherList and returns it
   if (displayAboveOrBelow === "below") {
-    anotherList = actualPlayers.filter(player => player.played < gameAmount);
+    anotherList = actualPlayers.filter((player) => player.played < gameAmount);
   } else if (displayAboveOrBelow === "above") {
-    anotherList = actualPlayers.filter(player => player.played > gameAmount);
+    anotherList = actualPlayers.filter((player) => player.played > gameAmount);
   }
 
   return anotherList;
@@ -338,7 +366,9 @@ function sortByWinRate(listOfPlayers) {
 function displayPlayersByWinRate(player) {
   const colorClass = changeColorClassByWinRate(player.winrate);
   const html = `
-  <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${player.rating}</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
+  <li>${player.name} played <span class="orange">${player.played}</span> games with a rating of <span class="orange">${
+    player.rating
+  }</span> and a a <span class="${colorClass}">${player.winrate.toFixed(2)}% win rate</span> </li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
@@ -365,7 +395,9 @@ function displayByActivity(player) {
   }
 
   const html = `
-  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${player.rating}</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
+  <li>${player.name} with <span class="${colorClass}">${player.played} games played</span>, a rating of <span class="orange">${
+    player.rating
+  }</span> and a <span class="orange">${player.winrate.toFixed(2)}%</span> winrate</li>
   `;
   document.querySelector("#listOfPlayers").insertAdjacentHTML("beforeend", html);
 }
