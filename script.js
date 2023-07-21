@@ -28,22 +28,43 @@ async function lumberTest(params) {
   const test = await fetch(`https://api.wc3stats.com/stats/425079`);
   console.log(test.json());
   console.log(response.json());
-  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=LIHL&season=Season%2016&limit=2`);
-
+  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=LIHL&season=Season%2016&limit=30`);
+  const playersAndTheirLumber = [];
   for (const player of listOfPlayersThatSeason) {
     const seperateNameAndTag = player.name.split("#");
-    const listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}%23${seperateNameAndTag[1]}`);
+    const name = seperateNameAndTag[0];
+    console.log("name", name);
+    const tag = seperateNameAndTag[1];
+    let listOfSeasonsThatPersonParticipatedIn;
+    if (tag !== undefined) {
+      listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${name}%23${tag}`);
+    } else {
+      listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${name}`);
+    }
     const toJSON = await listOfSeasonsThatPersonParticipatedIn.json();
+    // console.log("to json:", toJSON);
     const foundCorrectEntry = toJSON.body.find((entry) => entry.key.season === "Season 16" && entry.key.ladder === "LIHL");
-    console.log("found season id", foundCorrectEntry);
-    const fetchEntryStats = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}/${foundCorrectEntry.id}`);
-    const yep = await fetchEntryStats.json();
-    console.log("YEP", yep);
-    const finalStatsID = yep.body.stats.id;
-    const yep2 = await fetch(`https://api.wc3stats.com/profiles/${seperateNameAndTag[0]}/${finalStatsID}`);
-    const yawn = await yep2.json();
-    console.log(yawn);
+    // console.log("found season id", foundCorrectEntry);
+    const fetchEntryStats = await fetch(`https://api.wc3stats.com/profiles/${name}/${foundCorrectEntry.id}`);
+    const toJSON1 = await fetchEntryStats.json();
+    const finalStatsID = toJSON1.body.stats[0].id;
+    const finalFetch = await fetch(`https://api.wc3stats.com/stats/${finalStatsID}`);
+    const toJSON2 = await finalFetch.json();
+    // console.log(toJSON2);
+    if (toJSON2.body.types.range.roundLumber14 !== undefined) {
+      const statStart = toJSON2.body.types.range;
+      playersAndTheirLumber.push([name, statStart.roundLumber10.average.value, statStart.roundLumber14.average.value]);
+    }
+    // const statStartPoint = toJSON2.body.types.range;
+    // const totalLumber = statStartPoint.lumberTotal.average.value;
+    // const stayTime = statStartPoint.stayTime.average.value;
+    // const lumberPerMin = totalLumber / (stayTime / 60);
+    // playersAndTheirLumber.push([name, lumberPerMin]);
   }
+  playersAndTheirLumber.sort((player1, player2) => player2[1] - player1[1]);
+  const lumberAt14Array = [...playersAndTheirLumber].sort((player1, player2) => player2[2] - player1[2]);
+  console.log("lumber@10:", playersAndTheirLumber);
+  console.log("lumber@14:", lumberAt14Array);
   // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`)
   console.log(listOfPlayersThatSeason);
 }
