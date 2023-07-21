@@ -13,7 +13,7 @@ let listOfPlayersThatSeason = [];
 let sortedList = [];
 
 async function start(params) {
-  test();
+  document.querySelector("#getLumberStats").addEventListener("click", lumberTest);
   document.querySelector("#filterForm").addEventListener("submit", submitFilter);
   document.querySelector("#leagueSelect").addEventListener("change", adaptSeasonsToLeagueSelection);
   document.querySelector("#search").addEventListener("keyup", searchChanged);
@@ -22,11 +22,61 @@ async function start(params) {
   // document.querySelector("#gamesPerDay").addEventListener("submit", fetchLeagueSeasonsAndIds);
 }
 
-async function test(params) {
+async function lumberTest(params) {
+  // const response = await fetch(`https://api.wc3stats.com/profiles/Emi1%2321943`);
   // const response = await fetch(`https://api.wc3stats.com/profiles/Clickz/424520`);
-  const response = await fetch(`https://api.wc3stats.com/stats/425079`);
-  const playerStatsMaybe = await response.json();
-  console.log("player stats?", playerStatsMaybe);
+  // const test = await fetch(`https://api.wc3stats.com/stats/425079`);
+  // console.log(test.json());
+  // console.log(response.json());
+  const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=LIHL&season=Season%2016&limit=100`);
+  const playersAndTheirLumber = [];
+  for (const player of listOfPlayersThatSeason) {
+    if (player.played > 10) {
+      const seperateNameAndTag = player.name.split("#");
+      const name = seperateNameAndTag[0];
+
+      console.log("name", name);
+      const tag = seperateNameAndTag[1];
+      let listOfSeasonsThatPersonParticipatedIn;
+      if (tag !== undefined) {
+        listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${name}%23${tag}`);
+      } else {
+        listOfSeasonsThatPersonParticipatedIn = await fetch(`https://api.wc3stats.com/profiles/${name}`);
+      }
+      const toJSON = await listOfSeasonsThatPersonParticipatedIn.json();
+      // console.log("to json:", toJSON);
+      const foundCorrectEntry = toJSON.body.find((entry) => entry.key.season === "Season 16" && entry.key.ladder === "LIHL");
+      // console.log("found season id", foundCorrectEntry);
+      const fetchEntryStats = await fetch(`https://api.wc3stats.com/profiles/${name}/${foundCorrectEntry.id}`);
+      const toJSON1 = await fetchEntryStats.json();
+      const finalStatsID = toJSON1.body.stats[0].id;
+      const finalFetch = await fetch(`https://api.wc3stats.com/stats/${finalStatsID}`);
+      const toJSON2 = await finalFetch.json();
+      // console.log(toJSON2);
+      if (toJSON2.body.types.range.roundLumber14 !== undefined) {
+        const statStart = toJSON2.body.types.range;
+        playersAndTheirLumber.push({
+          rank: player.rank,
+          rating: player.rating,
+          name: name,
+          lumberAt7: statStart.roundLumber7.average.value,
+          lumberAt10: statStart.roundLumber10.average.value,
+          lumberAt14: statStart.roundLumber14.average.value,
+        });
+      }
+    }
+  }
+  const arrayToDownload = JSON.stringify(playersAndTheirLumber);
+  createDownloadBlob(arrayToDownload);
+
+  // playersAndTheirLumber.sort((player1, player2) => player2.lumberAt10 - player1.lumberAt10);
+  // const lumberAt14Array = [...playersAndTheirLumber].sort((player1, player2) => player2.lumberAt14 - player1.lumberAt14);
+  // // const ratingPerLumber = [...playersAndTheirLumber].sort((player1, player2) => player2.ratingPerLumber - player1.ratingPerLumber);
+  // console.log("lumber@10:", playersAndTheirLumber);
+  // console.log("lumber@14:", lumberAt14Array);
+  // // console.log("rating per lumber:", ratingPerLumber);
+  // // const listOfPlayersThatSeason = await getJSONFromWC3Stats(`https://api.wc3stats.com/leaderboard&map=Legion%20TD&ladder=${league}&season=Season%20${season}&limit=500`)
+  // console.log(listOfPlayersThatSeason);
 }
 
 async function fetchReplaysFromLeague(event) {
@@ -59,12 +109,14 @@ async function fetchReplaysFromLeague(event) {
 }
 
 function createDownloadBlob(CSVStructure) {
-  const file = new Blob([CSVStructure], { type: "text/csv;charset=utf-8" });
+  const file = new Blob([CSVStructure], { type: "text/json;charset=utf-8" });
+  // const file = new Blob([CSVStructure], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(file);
   if (link.download !== undefined) {
     link.href = url;
-    link.setAttribute("download", "Stats.csv");
+    link.setAttribute("download", "Stats.json");
+    // link.setAttribute("download", "Stats.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -266,6 +318,7 @@ async function submitFilter(event) {
 async function getJSONFromWC3Stats(dataToFetch) {
   const dataThings = await fetch(dataToFetch);
   const JSONtoJS = await dataThings.json();
+  console.log(JSONtoJS);
   const listOfPlayers = JSONtoJS.body;
   console.log(listOfPlayers);
   return listOfPlayers;
