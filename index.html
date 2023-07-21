@@ -66,25 +66,28 @@
         <label for="submit">(First load & switching league/season will take a few sec)</label>
       </form>
       <form id="gamesPerDay">
-        <label for="amount">Amount of games to look up
-          <input name="amount" type="number" min="1" max="10000">
+        <label for="amount"
+          >Amount of games to look up
+          <input name="amount" type="number" min="1" max="10000" />
         </label>
-        <br>
+        <br />
         <label for="leagueSelect">
-        <select name="leagueSelect" id="leagueSelect">
-          <option value="all">All</option>
-          <option value="LIHL">LIHL</option>
-          <option value="FBG LTD">FBG</option>
-          <option value="JUB">JUB</option>
-        </select>
-        League to get amount of games played per day data from</label>
-        <input type="submit" value="Fetch data and get file">
+          <select name="leagueSelect" id="leagueSelect">
+            <option value="all">All</option>
+            <option value="LIHL">LIHL</option>
+            <option value="FBG LTD">FBG</option>
+            <option value="JUB">JUB</option>
+          </select>
+          League to get amount of games played per day data from</label
+        >
+        <input type="submit" value="Fetch data and get file" />
       </form>
+      <button id="getLumberStats">Fetch lumber stats here!</button>
     </header>
     <div id="loadingElement" class=""></div>
-    
+
     <label for="search">Search for a specific player</label>
-    <input id="search" name="search" type="search" autocomplete="off">
+    <input id="search" name="search" type="search" autocomplete="off" />
     <ol id="listOfPlayers"></ol>
     <script src="script.js"></script>
   </body>
